@@ -4,7 +4,7 @@ import React from "react";
 import { toast } from "sonner";
 import { useConnect } from "wagmi";
 import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import usePush from "@/hooks/usePush";
 
@@ -27,13 +27,14 @@ const ConnectWalletBtn = () => {
       variant={"filled"}
       onClick={handleClick}
       label="Connect Wallet"
-      style="bg-gradient-push w-full text-sm sm:text-sm md:text-base font-medium text-white"
+      style="bg-black w-full text-sm sm:text-sm md:text-base font-medium text-white"
     />
   );
 };
 
 const SignWalletBtn = () => {
   const router = useRouter();
+  const query = useSearchParams();
 
   const { initializePush } = usePush();
 
@@ -41,7 +42,7 @@ const SignWalletBtn = () => {
     try {
       await initializePush();
 
-      router.push("/chats");
+      router.push(query.get("next") || "/home");
     } catch (err) {
       toast.error("Error initializing push protocol");
     }
