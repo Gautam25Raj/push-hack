@@ -30,16 +30,13 @@ const Spaces = () => {
         "https://github.com/Gautam25Raj/push-chat/blob/master/screenshots/onboarding_page.PNG",
       schedule: {
         start: new Date("2024-07-15T14:48:00.000Z"),
-        end: new Date("2024-07-15T15:48:00.000Z"),
+        end: new Date("2024-07-16T15:48:00.000Z"),
       },
       speakers: ["0x3829E53A15856d1846e1b52d3Bdf5839705c29e5"],
       isPublic: true,
       account: "0xD993eb61B8843439A23741C0A3b5138763aE11a4",
       env: "staging",
       pgpPrivateKey: userAlice.decryptedPgpPvtKey,
-      scheduleAt: new Date("2024-07-15T14:48:00.000Z"),
-      scheduleEnd: new Date("2024-07-15T15:48:00.000Z"),
-      timestamp: new Date(),
     });
 
     console.log(response);
