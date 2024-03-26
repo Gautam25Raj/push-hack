@@ -78,34 +78,9 @@ export default function usePush() {
     }
   };
 
-  const connectStream = async (user) => {
-    const stream = await user.initStream(
-      [
-        CONSTANTS.STREAM.CHAT,
-        CONSTANTS.STREAM.CONNECT,
-        CONSTANTS.STREAM.DISCONNECT,
-      ],
-      {}
-    );
-
-    stream.on(CONSTANTS.STREAM.CONNECT, () => {
-      console.log("CONNECTED");
-    });
-
-    stream.on(CONSTANTS.STREAM.CHAT, async (data) => {
-      handleChatEvent(user, data);
-    });
-
-    await stream.connect();
-
-    stream.on(CONSTANTS.STREAM.DISCONNECT, () => {
-      console.log("DISCONNECTED");
-    });
-  };
-
-  const handleVideoEvent = (aliceVideoCall, data) => {
-    if (data.event === CONSTANTS.STREAM.VIDEO.REQUEST) {
-      aliceVideoCall.approve();
+  const handleVideoEvent = (data, setIncomingCallerAddress) => {
+    if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
+      setIncomingCallerAddress(data.peerInfo.address);
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
@@ -113,7 +88,7 @@ export default function usePush() {
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
-      console.log("User Denied the Call");
+      alert("User Denied the Call");
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
@@ -121,8 +96,55 @@ export default function usePush() {
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
-      console.log("Video Call ended!");
+      alert("Video Call ended!");
     }
+  };
+
+  const connectStream = async (
+    user,
+    videoCall,
+    setData,
+    setIsPushStreamConnected,
+    setIncomingCallerAddress
+  ) => {
+    const stream = await user.initStream([
+      CONSTANTS.STREAM.CHAT,
+      CONSTANTS.STREAM.VIDEO,
+      CONSTANTS.STREAM.NOTIF,
+      CONSTANTS.STREAM.CONNECT,
+      CONSTANTS.STREAM.DISCONNECT,
+    ]);
+
+    stream.on(CONSTANTS.STREAM.CONNECT, () => {
+      setIsPushStreamConnected(true);
+      console.log("Stream Connected");
+    });
+
+    stream.on(CONSTANTS.STREAM.DISCONNECT, () => {
+      setIsPushStreamConnected(false);
+      console.log("Stream Disconnected");
+    });
+
+    stream.on(CONSTANTS.STREAM.CHAT, async (data) => {
+      handleChatEvent(user, data);
+    });
+
+    stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
+      handleVideoEvent(data, setIncomingCallerAddress);
+    });
+
+    videoCall.current = await user.video.initialize(setData, {
+      stream: stream,
+
+      config: {
+        video: true,
+        audio: true,
+      },
+    });
+
+    console.log("Video Call: ", videoCall.current);
+
+    await stream.connect();
   };
 
   const connectVideoChat = async (user) => {

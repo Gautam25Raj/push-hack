@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
-import styled from "styled-components";
 
-const VideoPlayer = ({ stream, isMuted }) => {
+const VideoPlayer = ({ width, height, stream, isMuted }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -11,13 +10,15 @@ const VideoPlayer = ({ stream, isMuted }) => {
     }
   }, [videoRef, stream]);
 
-  return <Video ref={videoRef} muted={isMuted} autoPlay />;
+  return (
+    <video
+      className="rounded-lg border-2 border-gray-300 aspect-video"
+      style={{ width, height }}
+      ref={videoRef}
+      muted={isMuted}
+      autoPlay
+    />
+  );
 };
-
-const Video = styled.video`
-  width: 25vw;
-  height: fit-content;
-  border: 2px solid black;
-`;
 
 export default VideoPlayer;

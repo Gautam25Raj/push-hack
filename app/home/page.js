@@ -1,127 +1,99 @@
 "use client";
 
+import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
-import { useAccount, useWalletClient } from "wagmi";
-import styled from "styled-components";
-import { CONSTANTS, PushAPI, TYPES } from "@pushprotocol/restapi";
-
-import IncomingVideoModal from "./IncomingVideoModal";
-import VideoPlayer from "./VideoPlayer";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
+import { CONSTANTS } from "@pushprotocol/restapi";
+import { useAccount, useWalletClient } from "wagmi";
+
+import usePush from "@/hooks/usePush";
+
+import VideoPlayer from "./VideoPlayer";
+import IncomingVideoModal from "./IncomingVideoModal";
+import Logo from "@/components/Logo";
 
 const VideoV2 = () => {
   const { isConnected } = useAccount();
+  const { connectStream } = usePush();
 
   const { data: signer } = useWalletClient();
 
-  const aliceVideoCall = useRef();
+  const videoCall = useRef();
 
-  const [isPushStreamConnected, setIsPushStreamConnected] = useState(false);
-
+  const [recipientAddress, setRecipientAddress] = useState("");
   const [data, setData] = useState(CONSTANTS.VIDEO.INITIAL_DATA);
   const [incomingCallerAddress, setIncomingCallerAddress] = useState(null);
-  const [recipientAddress, setRecipientAddress] = useState("");
+  const [isPushStreamConnected, setIsPushStreamConnected] = useState(false);
+
+  const user = useSelector((state) => state.push.pushSign);
 
   const initializePushAPI = async () => {
-    const userAlice = await PushAPI.initialize(signer, {
-      env: CONSTANTS.ENV.PROD,
-    });
-
-    const createdStream = await userAlice.initStream([
-      CONSTANTS.STREAM.VIDEO,
-      CONSTANTS.STREAM.CONNECT,
-      CONSTANTS.STREAM.DISCONNECT,
-    ]);
-
-    createdStream.on(CONSTANTS.STREAM.CONNECT, () => {
-      setIsPushStreamConnected(true);
-    });
-
-    createdStream.on(CONSTANTS.STREAM.DISCONNECT, () => {
-      setIsPushStreamConnected(false);
-    });
-
-    createdStream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
-      if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
-        setIncomingCallerAddress(data.peerInfo.address);
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
-        console.log("Video Call Approved");
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
-        alert("User Denied the Call");
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
-        console.log("Video Call Connected");
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
-        alert("Video Call ended!");
-      }
-    });
-
-    aliceVideoCall.current = await userAlice.video.initialize(setData, {
-      stream: createdStream,
-      config: {
-        video: true,
-        audio: true,
-      },
-    });
-
-    await createdStream.connect();
+    connectStream(
+      user,
+      videoCall,
+      setData,
+      setIsPushStreamConnected,
+      setIncomingCallerAddress
+    );
   };
 
-  // Here we initialize the push video API, which is the first and important step to make video calls
   useEffect(() => {
     if (!signer) return;
+
     if (data?.incoming[0]?.status !== CONSTANTS.VIDEO.STATUS.UNINITIALIZED)
-      return; // data?.incoming[0]?.status will have a status of VideoCallStatus.UNINITIALIZED when the video call is not initialized, call ended or denied. So we Initialize the Push API here.
+      return;
+
     initializePushAPI();
   }, [signer, data.incoming[0].status]);
 
   useEffect(() => {
-    console.log("isPushStreamConnected", isPushStreamConnected); // This will be true when the push stream is connected
+    console.log("isPushStreamConnected", isPushStreamConnected);
   }, [isPushStreamConnected]);
 
-  // This function is used to request a video call to a recipient
   const requestVideoCall = async (recipient) => {
-    await aliceVideoCall.current.request([recipient]);
+    await videoCall.current.request([recipient]);
   };
 
-  // This function is used to accept the incoming video call
   const acceptIncomingCall = async () => {
-    await aliceVideoCall.current.approve(incomingCallerAddress);
+    await videoCall.current.approve(incomingCallerAddress);
   };
 
-  // This function is used to deny the incoming video call
   const denyIncomingCall = async () => {
-    await aliceVideoCall.current.deny(incomingCallerAddress);
+    await videoCall.current.deny(incomingCallerAddress);
   };
 
-  // This function is used to end the ongoing video call
   const endCall = async () => {
-    await aliceVideoCall.current.disconnect();
+    await videoCall.current.disconnect();
   };
+
+  const toggleVideo = async () => {
+    await videoCall.current?.config({ video: !data.local.video });
+  };
+
+  const toggleAudio = async () => {
+    await videoCall.current?.config({ audio: !data?.local.audio });
+  };
+
+  console.log("data", data);
 
   return (
-    <div>
-      <Heading>Push Video v2 SDK Demo</Heading>
-
+    <section className="p-4">
       {isConnected ? (
         <div>
-          <HContainer>
+          <Logo size={40} textSize={"text-xl"} />
+
+          {/* <div>
             <input
               onChange={(e) => setRecipientAddress(e.target.value)}
               value={recipientAddress}
               placeholder="recipient address"
               type="text"
             />
-          </HContainer>
-          <HContainer>
+          </div> */}
+
+          <div>
             <button
               onClick={() => {
                 requestVideoCall(recipientAddress);
@@ -130,16 +102,18 @@ const VideoV2 = () => {
             >
               Request Video Call
             </button>
+
             <button
               onClick={endCall}
               disabled={data?.incoming[0]?.status !== 3}
             >
               End Video Call
             </button>
+
             <button
               disabled={!data.incoming[0]}
               onClick={() => {
-                aliceVideoCall.current?.config({ video: !data.local.video }); // This function is used to toggle the video on/off
+                videoCall.current?.config({ video: !data.local.video });
               }}
             >
               Toggle Video
@@ -148,7 +122,7 @@ const VideoV2 = () => {
             <button
               disabled={!data.incoming[0]}
               onClick={() => {
-                aliceVideoCall.current?.config({ audio: !data?.local.audio }); // This function is used to toggle the audio on/off
+                videoCall.current?.config({ audio: !data?.local.audio });
               }}
             >
               Toggle Audio
@@ -165,48 +139,95 @@ const VideoV2 = () => {
                   onReject={denyIncomingCall}
                 />
               )}
-          </HContainer>
-          <HContainer>
+          </div>
+
+          <div>
             <p>LOCAL VIDEO: {data?.local.video ? "TRUE" : "FALSE"}</p>
             <p>LOCAL AUDIO: {data?.local.audio ? "TRUE" : "FALSE"}</p>
             <p>INCOMING VIDEO: {data?.incoming[0]?.video ? "TRUE" : "FALSE"}</p>
             <p>INCOMING AUDIO: {data?.incoming[0]?.audio ? "TRUE" : "FALSE"}</p>
-          </HContainer>
-          <HContainer>
-            <VContainer>
-              <h2>Local Video</h2>
-              <VideoPlayer stream={data.local.stream} isMuted={true} />
-            </VContainer>
+          </div>
 
-            <VContainer>
+          <div className="w-10/12 mx-auto flex gap-12">
+            <div className="relative w-fit rounded-lg overflow-hidden">
+              <div className="bg-gradient-to-b absolute z-10 w-full h-1/6 text-[#00000083]"></div>
+
+              <p></p>
+
+              <VideoPlayer
+                stream={data.local.stream}
+                isMuted={true}
+                height={"fit-content"}
+                width="50vw"
+              />
+
+              <div className="absolute z-20 bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                <div
+                  className="rounded-full p-3 cursor-pointer transition-colors"
+                  style={{
+                    backgroundColor: data?.local.audio
+                      ? "rgba(0, 0, 0, 0.3)"
+                      : "#FF5733",
+                    border: data?.local.audio
+                      ? "1px solid white"
+                      : "1px solid transparent",
+                  }}
+                  onClick={toggleAudio}
+                >
+                  {data?.local.audio ? (
+                    <Mic size={24} color="white" />
+                  ) : (
+                    <MicOff size={24} color="white" />
+                  )}
+                </div>
+
+                <div
+                  className="rounded-full p-3 cursor-pointer transition-colors"
+                  style={{
+                    backgroundColor: data?.local.video
+                      ? "rgba(0, 0, 0, 0.3)"
+                      : "#FF5733",
+                    border: data?.local.video
+                      ? "1px solid white"
+                      : "1px solid transparent",
+                  }}
+                  onClick={toggleVideo}
+                >
+                  {data?.local.video ? (
+                    <Video size={24} color="white" />
+                  ) : (
+                    <VideoOff size={24} color="white" />
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-b absolute z-10 w-full h-1/6 text-[#000000ba] bottom-0 rotate-180"></div>
+            </div>
+
+            <div className="flex-1 flex justify-center items-start flex-col gap-4">
+              <h2 className="text-3xl font-semibold">
+                Ready to Join the Call?
+              </h2>
+
+              <button
+                className="bg-gradient-push px-6 py-2 rounded-full text-white shadow-md"
+                onClick={requestVideoCall}
+              >
+                Join Now
+              </button>
+            </div>
+
+            {/* <div>
               <h2>Incoming Video</h2>
               <VideoPlayer stream={data.incoming[0].stream} isMuted={false} />
-            </VContainer>
-          </HContainer>
+            </div> */}
+          </div>
         </div>
       ) : (
         "Please connect your wallet."
       )}
-    </div>
+    </section>
   );
 };
-
-const Heading = styled.h1`
-  margin: 20px 40px;
-`;
-
-const HContainer = styled.div`
-  display: flex;
-  gap: 20px;
-  margin: 20px 40px;
-`;
-
-const VContainer = styled.div`
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-  width: fit-content;
-  height: fit-content;
-`;
 
 export default VideoV2;
