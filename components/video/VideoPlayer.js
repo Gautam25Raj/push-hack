@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const VideoPlayer = ({ width, height, stream, isMuted }) => {
+const VideoPlayer = ({ width, height, stream, isMuted, classStyle }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ const VideoPlayer = ({ width, height, stream, isMuted }) => {
 
   return (
     <video
-      className="rounded-lg border-2 border-gray-300 aspect-video"
+      className={classStyle}
       style={{ width, height }}
       ref={videoRef}
       muted={isMuted}
