@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const withMT = require("@material-tailwind/react/utils/withMT");
+const plugin = require("tailwindcss/plugin");
+
+module.exports = withMT({
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -16,5 +19,18 @@ module.exports = {
       },
     },
   },
-  plugins: [],
-};
+
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      const newUtilities = {
+        ".gradient-text": {
+          "background-clip": "text",
+          "-webkit-background-clip": "text",
+          "-webkit-text-fill-color": "transparent",
+        },
+      };
+
+      addUtilities(newUtilities);
+    }),
+  ],
+});
