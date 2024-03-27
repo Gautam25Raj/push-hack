@@ -45,7 +45,7 @@ const VideoV2 = () => {
     if (data?.incoming[0]?.status !== CONSTANTS.VIDEO.STATUS.UNINITIALIZED)
       return;
 
-    // initializePushAPI();
+    initializePushAPI();
   }, []);
 
   useEffect(() => {
@@ -53,7 +53,9 @@ const VideoV2 = () => {
   }, [isPushStreamConnected]);
 
   const requestVideoCall = async (recipient) => {
-    await videoCall.current.request([recipient]);
+    await videoCall.current.request([
+      "0x3f5E02760Fc81ba1db4d613Ea04BBA72Dc6C06dE",
+    ]);
     setIsJoined(true);
   };
 

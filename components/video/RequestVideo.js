@@ -1,14 +1,20 @@
+"use client";
+
 import { Button } from "@material-tailwind/react";
 import { Mic, MicOff, Video, VideoOff } from "lucide-react";
 
 import Image from "next/image";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
 import { CONSTANTS } from "@pushprotocol/restapi";
 
 import Logo from "@/components/Logo";
 
+import Copy from "../ui/Copy";
 import VideoPlayer from "./VideoPlayer";
-import IncomingVideoModal from "./IncomingVideoModal";
+import IncomingVideoModal from "../modal/IncomingVideoModal";
+
+import pubkeyMinify from "@/utils/pubkeyMinify";
 
 const RequestVideo = ({
   data,
@@ -19,18 +25,30 @@ const RequestVideo = ({
   toggleVideo,
   requestVideoCall,
 }) => {
+  const userInfo = useSelector((state) => state.push.pushUser);
+  const pushSign = useSelector((state) => state.push.pushSign);
+
   return (
     <section className="p-4 h-screen flex flex-col">
       <div className="flex justify-between">
         <Logo size={40} textSize={"text-xl"} />
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           <div className="">
-            <p>Gautam Raj</p>
-            <p>0x2fgt...aa8</p>
+            <p className="font-bold">{userInfo.name}</p>
+            <p className="text-sm flex gap-2 items-center">
+              {pubkeyMinify(pushSign.account)}
+              <Copy text={pushSign.account} />
+            </p>
           </div>
 
-          <Image src="/images/hero.png" width={40} height={40} />
+          <Image
+            src={userInfo.picture}
+            width={48}
+            height={48}
+            alt=""
+            className="rounded-full"
+          />
         </div>
       </div>
 
@@ -85,7 +103,7 @@ const RequestVideo = ({
           <div className="bg-gradient-to-b absolute z-10 w-full h-1/6 text-[#00000083]"></div>
 
           <div className="flex gap-4 absolute left-3 top-2 z-20">
-            <Image src="/images/hero.png" width={40} height={40} />
+            <Image src="/images/hero.png" width={40} height={40} alt="" />
 
             <div className="">
               <p className="text-white font-bold">Anoy Roy Chowdhury</p>

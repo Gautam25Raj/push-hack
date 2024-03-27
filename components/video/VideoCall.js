@@ -90,7 +90,7 @@ const VideoCallContainer = ({ data, toggleAudio, toggleVideo, endCall }) => {
         <div className="bg-gradient-to-b absolute z-10 bottom-0 rotate-180 w-full h-1/6 text-[#00000083]"></div>
 
         <div className="flex gap-4 absolute left-6 bottom-3 z-20">
-          <Image src="/images/hero.png" width={32} height={32} />
+          <Image src="/images/hero.png" width={32} height={32} alt="" />
 
           <div className="">
             <p className="text-white font-bold text-sm">Anoy Roy Chowdhury</p>

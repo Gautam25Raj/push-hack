@@ -1,11 +1,12 @@
 "use client";
 
-import { useEthersSigner } from "@/wagmi/EthersSigner";
 import { useDispatch } from "react-redux";
+import { useEthersSigner } from "@/wagmi/EthersSigner";
 import { PushAPI, CONSTANTS } from "@pushprotocol/restapi";
 
 import {
   setPushSign,
+  setPushUser,
   setRecentContact,
   setRecentRequest,
   updateMessages,
@@ -25,7 +26,10 @@ export default function usePush() {
       if (user.errors.length > 0)
         throw new Error("Error initializing push protocol");
 
+      const userInfo = await user.profile.info();
+
       dispatch(setPushSign(user));
+      dispatch(setPushUser(userInfo));
 
       return user;
     } catch (error) {
@@ -80,22 +84,27 @@ export default function usePush() {
 
   const handleVideoEvent = (data, setIncomingCallerAddress) => {
     if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
+      console.log(data);
       setIncomingCallerAddress(data.peerInfo.address);
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
+      console.log(data);
       console.log("Video Call Approved");
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
+      console.log(data);
       alert("User Denied the Call");
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
+      console.log(data);
       console.log("Video Call Connected");
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
+      console.log(data);
       alert("Video Call ended!");
     }
   };
@@ -141,8 +150,6 @@ export default function usePush() {
         audio: true,
       },
     });
-
-    console.log("Video Call: ", videoCall.current);
 
     await stream.connect();
   };

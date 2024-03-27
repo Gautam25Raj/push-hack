@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   pushSign: false,
+  pushUser: {},
   currentContact: {},
   recentContact: [],
   recentRequest: [],
@@ -16,6 +17,22 @@ const pushSlice = createSlice({
   reducers: {
     setPushSign: (state, action) => {
       state.pushSign = action.payload;
+    },
+
+    removePushSign: (state) => {
+      state.pushSign = false;
+    },
+
+    setPushUser: (state, action) => {
+      state.pushUser = action.payload;
+    },
+
+    updatePushUser: (state, action) => {
+      state.pushUser = { ...action.payload };
+    },
+
+    removePushUser: (state) => {
+      state.pushUser = {};
     },
 
     setCurrentContact: (state, action) => {
@@ -69,6 +86,10 @@ export const {
   setMessages,
   updateMessages,
   updateRecentRequest,
+  removePushSign,
+  setPushUser,
+  updatePushUser,
+  removePushUser,
 } = pushSlice.actions;
 
 export default pushSlice.reducer;
