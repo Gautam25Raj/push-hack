@@ -36,10 +36,10 @@ const RequestVideo = ({
         <div className="flex gap-4 items-center">
           <div className="">
             <p className="font-bold">{userInfo.name}</p>
-            <p className="text-sm flex gap-2 items-center">
+            <div className="text-sm flex gap-2 items-center">
               {pubkeyMinify(pushSign.account)}
               <Copy text={pushSign.account} />
-            </p>
+            </div>
           </div>
 
           <Image
@@ -103,11 +103,20 @@ const RequestVideo = ({
           <div className="bg-gradient-to-b absolute z-10 w-full h-1/6 text-[#00000083]"></div>
 
           <div className="flex gap-4 absolute left-3 top-2 z-20">
-            <Image src="/images/hero.png" width={40} height={40} alt="" />
+            <Image
+              src={userInfo.picture}
+              width={48}
+              height={48}
+              alt=""
+              className="rounded-full"
+            />
 
             <div className="">
-              <p className="text-white font-bold">Anoy Roy Chowdhury</p>
-              <p className="text-white">0x3afr...456</p>
+              <p className="font-bold text-white">{userInfo.name}</p>
+              <div className="text-sm flex gap-2 items-center text-white">
+                {pubkeyMinify(pushSign.account)}
+                <Copy color="white" text={pushSign.account} />
+              </div>
             </div>
           </div>
 

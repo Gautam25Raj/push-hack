@@ -1,70 +1,119 @@
 "use client";
 
-import { CONSTANTS } from "@pushprotocol/restapi";
+import React, { useEffect, useRef, useState } from "react";
+
 import { useSelector } from "react-redux";
+import { CONSTANTS } from "@pushprotocol/restapi";
+import { useAccount, useWalletClient } from "wagmi";
 
-const page = () => {
-  const userAlice = useSelector((state) => state.push.pushSign);
+import usePush from "@/hooks/usePush";
 
-  const initializePush = async () => {
-    let data = CONSTANTS.VIDEO.INITIAL_DATA;
+import RequestVideo from "@/components/video/RequestVideo";
+import VideoCallContainer from "@/components/video/VideoCall";
 
-    const setData = (fn) => {
-      data = fn(data);
-    };
+const VideoContainer = () => {
+  const { isConnected } = useAccount();
+  const { connectStream } = usePush();
 
-    const stream = await userAlice.initStream([
-      CONSTANTS.STREAM.CONNECT,
-      CONSTANTS.STREAM.VIDEO,
-      CONSTANTS.STREAM.DISCONNECT,
-    ]);
+  const { data: signer } = useWalletClient();
 
-    stream.on(CONSTANTS.STREAM.CONNECT, () => {
-      console.log("CONNECTED");
+  const videoCall = useRef();
+
+  const [recipientAddress, setRecipientAddress] = useState("");
+  const [data, setData] = useState(CONSTANTS.VIDEO.INITIAL_DATA);
+  const [incomingCallerAddress, setIncomingCallerAddress] = useState(null);
+  const [isPushStreamConnected, setIsPushStreamConnected] = useState(false);
+
+  const [isJoined, setIsJoined] = useState(false);
+  const [acceptedCall, setAcceptedCall] = useState(true);
+  const [recipentInfo, setRecipentInfo] = useState({});
+
+  const user = useSelector((state) => state.push.pushSign);
+
+  const initializePushAPI = async () => {
+    await connectStream(
+      user,
+      videoCall,
+      setData,
+      setIsPushStreamConnected,
+      setIncomingCallerAddress
+    );
+
+    const info = await user.profile.info({
+      overrideAccount: "0x3f5e02760fc81ba1db4d613ea04bba72dc6c06de",
     });
 
-    const aliceVideoCall = await userAlice.video.initialize(setData, {
-      stream: stream,
-      config: {
-        video: true,
-        audio: true,
-      },
-    });
-
-    stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
-      if (data.event === CONSTANTS.STREAM.VIDEO.REQUEST) {
-        aliceVideoCall.approve();
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
-        console.log("Video Call Approved");
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
-        console.log("User Denied the Call");
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
-        console.log("Video Call Connected");
-      }
-
-      if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
-        console.log("Video Call ended!");
-      }
-    });
-
-    await stream.connect();
-
-    stream.on(CONSTANTS.STREAM.DISCONNECT, () => {
-      console.log("DISCONNECTED");
-    });
-
-    await aliceVideoCall.request([
-      "0x3f5E02760Fc81ba1db4d613Ea04BBA72Dc6C06dE",
-    ]);
+    setRecipentInfo(info);
   };
 
-  return <button onClick={initializePush}>hi</button>;
+  useEffect(() => {
+    if (!signer) return;
+
+    if (data?.incoming[0]?.status !== CONSTANTS.VIDEO.STATUS.UNINITIALIZED)
+      return;
+
+    initializePushAPI();
+  }, []);
+
+  useEffect(() => {
+    console.log("isPushStreamConnected", isPushStreamConnected);
+  }, [isPushStreamConnected]);
+
+  const requestVideoCall = async (recipient) => {
+    await videoCall.current.request([recipient]);
+    setIsJoined(true);
+  };
+
+  const acceptIncomingCall = async () => {
+    await videoCall.current.approve(incomingCallerAddress);
+    setIsJoined(true);
+    setAcceptedCall(true);
+  };
+
+  const denyIncomingCall = async () => {
+    await videoCall.current.deny(incomingCallerAddress);
+  };
+
+  const endCall = async () => {
+    await videoCall.current.disconnect();
+    setIsJoined(false);
+    setAcceptedCall(false);
+  };
+
+  const toggleVideo = async () => {
+    await videoCall.current?.config({ video: !data.local.video });
+  };
+
+  const toggleAudio = async () => {
+    await videoCall.current?.config({ audio: !data?.local.audio });
+  };
+
+  return (
+    <>
+      {isConnected ? (
+        isJoined ? (
+          <VideoCallContainer
+            data={data}
+            toggleAudio={toggleAudio}
+            toggleVideo={toggleVideo}
+            endCall={endCall}
+          />
+        ) : (
+          <RequestVideo
+            data={data}
+            incomingCallerAddress={incomingCallerAddress}
+            acceptIncomingCall={acceptIncomingCall}
+            denyIncomingCall={denyIncomingCall}
+            toggleAudio={toggleAudio}
+            toggleVideo={toggleVideo}
+            requestVideoCall={requestVideoCall}
+          />
+        )
+      ) : (
+        <p>Please connect your wallet.</p>
+      )}
+    </>
+  );
 };
 
-export default page;
+export default VideoContainer;

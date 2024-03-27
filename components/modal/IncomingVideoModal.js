@@ -1,63 +1,48 @@
-// Import necessary libraries
-import React from "react";
-import styled from "styled-components";
+"use client";
 
-const IncomingVideoModalWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  width: 400px;
-  border-radius: 5px;
-  background-color: black;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 100;
-`;
-
-const CallerID = styled.div`
-  font-size: 14px;
-  margin-bottom: 20px;
-  color: #fff;
-`;
-
-const Button = styled.button`
-  padding: 10px 20px;
-  margin: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  outline: none;
-`;
-
-const GreenButton = styled(Button)`
-  background-color: #4caf50;
-  color: #fff;
-  cursor: pointer;
-`;
-
-const RedButton = styled(Button)`
-  background-color: #f44336;
-  color: #fff;
-  cursor: pointer;
-`;
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: space-around;
-`;
+import {
+  Button,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  Card,
+} from "@material-tailwind/react";
 
 const IncomingVideoModal = ({ callerID, onAccept, onReject }) => {
   return (
-    <IncomingVideoModalWrapper>
-      <CallerID>{callerID} is calling... </CallerID>
-      <ButtonContainer>
-        <GreenButton onClick={onAccept}>Accept</GreenButton>
-        <RedButton onClick={onReject}>Reject</RedButton>
-      </ButtonContainer>
-    </IncomingVideoModalWrapper>
+    <div className="absolute top-0 left-0 h-full w-full backdrop-filter backdrop-blur-md z-50 bg-black/10">
+      <div className=" flex justify-center h-full items-center ">
+        <div className="w-[520px] flex items-center justify-center shadow-lg">
+          <div className="w-full rounded-lg p-[0.5px] border border-gray-400">
+            <div className={"h-full w-full rounded-lg bg-white "}>
+              <Card className={"h-full w-full rounded-lg bg-white pb-1"}>
+                <DialogHeader>Incomming Meeting Call.</DialogHeader>
+                <DialogBody>{callerID} is calling...</DialogBody>
+
+                <DialogFooter className="gap-2 ml-auto">
+                  <Button
+                    color="gray"
+                    className="bg-green-500"
+                    onClick={onAccept}
+                  >
+                    <span>Accept</span>
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    color="red"
+                    onClick={onReject}
+                    className="mr-1"
+                  >
+                    <span>Reject</span>
+                  </Button>
+                </DialogFooter>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
