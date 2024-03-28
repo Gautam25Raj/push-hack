@@ -26,6 +26,9 @@ app.use(cookieParser());
 
 connectDB();
 
+app.use("/api/user", require("./controller/userController"));
+app.use("/api/meeting", require("./controller/meetingController"));
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
