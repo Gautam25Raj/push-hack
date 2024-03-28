@@ -1,5 +1,6 @@
-import ScheduleFilter from "./ScheduleFilter";
+import Meeting from "../meeting/Meeting";
 import ScheduleTime from "./ScheduleTime";
+import ScheduleFilter from "./ScheduleFilter";
 
 const ScheduleContainer = () => {
   return (
@@ -7,6 +8,8 @@ const ScheduleContainer = () => {
       <ScheduleTime />
 
       <ScheduleFilter />
+
+      <Meeting />
     </section>
   );
 };
