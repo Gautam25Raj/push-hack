@@ -32,9 +32,7 @@ router.post("/", async (req, res) => {
     const existingUser = await User.findOne({ pubKey });
 
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User with this pubKey already exists" });
+      return res.status(200).json(existingUser);
     }
 
     const user = new User({ pubKey });

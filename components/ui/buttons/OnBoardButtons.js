@@ -2,13 +2,14 @@
 
 import React from "react";
 import { toast } from "sonner";
-import { useConnect } from "wagmi";
+import { useAccount, useConnect } from "wagmi";
 import { useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import usePush from "@/hooks/usePush";
 
 import DefaultButton from "./DefaultButton";
+import useUser from "@/hooks/useUser";
 
 const ConnectWalletBtn = () => {
   const activeWallet = useSelector((state) => state.modals.activeWallet);
@@ -36,11 +37,16 @@ const SignWalletBtn = () => {
   const router = useRouter();
   const query = useSearchParams();
 
+  const { address } = useAccount();
+
   const { initializePush } = usePush();
+  const { createUser } = useUser();
 
   const handleClick = async () => {
     try {
       await initializePush();
+
+      await createUser(address);
 
       router.push(query.get("next") || "/home");
     } catch (err) {
