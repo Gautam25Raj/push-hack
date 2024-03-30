@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   meetings: [],
   activeMeeting: null,
+  selectedMeeting: null,
 };
 
 const meetingSlice = createSlice({
@@ -43,6 +44,14 @@ const meetingSlice = createSlice({
       state.meetings = [];
       state.activeMeeting = null;
     },
+
+    setSelectedMeeting: (state, action) => {
+      state.selectedMeeting = action.payload;
+    },
+
+    clearSelectedMeeting: (state) => {
+      state.selectedMeeting = null;
+    },
   },
 });
 
@@ -53,6 +62,9 @@ export const {
   addMeeting,
   deleteMeeting,
   clearMeetings,
+  clearActiveMeeting,
+  setSelectedMeeting,
+  clearSelectedMeeting,
 } = meetingSlice.actions;
 
 export default meetingSlice.reducer;

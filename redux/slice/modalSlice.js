@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   activeWallet: null,
   isNewContactsModalOpen: false,
+  isEditModal: false,
 };
 
 const modalsSlice = createSlice({
@@ -18,9 +19,14 @@ const modalsSlice = createSlice({
     setActiveWallet: (state, action) => {
       state.activeWallet = action.payload;
     },
+
+    toggleEditMeeting: (state) => {
+      state.isEditModal = !state.isEditModal;
+    },
   },
 });
 
-export const { toggleNewContactsModal, setActiveWallet } = modalsSlice.actions;
+export const { toggleNewContactsModal, setActiveWallet, toggleEditMeeting } =
+  modalsSlice.actions;
 
 export default modalsSlice.reducer;

@@ -1,9 +1,10 @@
+import MeetingHome from "@/components/meeting/MeetingHome";
 import ScheduleContainer from "@/components/schedule/ScheduleContainer";
 
 const Home = () => {
   return (
     <div className="flex">
-      <div className="w-9/12 bg-black"></div>
+      <MeetingHome />
 
       <ScheduleContainer />
     </div>

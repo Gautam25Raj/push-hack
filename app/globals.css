@@ -23,3 +23,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.create-meeting > div {
+  min-width: 0;
+}

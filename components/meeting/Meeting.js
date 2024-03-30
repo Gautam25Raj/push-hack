@@ -27,7 +27,7 @@ const Meeting = () => {
     }
   }, []);
 
-  return meetings ? (
+  return meetings.length === 0 ? (
     <ul className="px-3 mt-8 space-y-1.5">
       {meetings.map((meeting) => (
         <MeetingItem key={meeting._id} meeting={meeting} />

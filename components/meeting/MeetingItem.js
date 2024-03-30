@@ -1,10 +1,9 @@
 import { setActiveMeeting } from "@/redux/slice/meetingSlice";
-import { Button } from "@material-tailwind/react";
-import { ChevronRight, Plus } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import MeetingItemMenu from "./MeetingItemMenu";
 
 const MeetingItem = ({ meeting }) => {
   const router = useRouter();
@@ -16,7 +15,9 @@ const MeetingItem = ({ meeting }) => {
   const pushSign = useSelector((state) => state.push.pushSign);
 
   const fetchPushUser = async () => {
-    const response = await pushSign.profile.info(meeting.recipientPubKey);
+    const response = await pushSign.profile.info({
+      overrideAccount: meeting.recipientPubKey,
+    });
     setData(response);
   };
 
@@ -67,40 +68,39 @@ const MeetingItem = ({ meeting }) => {
 
   return (
     data && (
-      <li
-        className="flex items-center justify-between cursor-pointer hover:bg-gray-200 px-2 rounded-lg py-1.5"
-        onClick={handleMeetingClick}
-      >
-        <div className="flex items-center gap-3">
-          <Image
-            src={data.picture}
-            alt={data.name}
-            width={50}
-            height={50}
-            className="rounded-full"
-          />
+      <li className="flex items-center justify-between cursor-pointer hover:bg-gray-200 px-2 rounded-lg py-1.5">
+        <div className="w-full" onClick={handleMeetingClick}>
+          <div className="flex items-center gap-3">
+            <Image
+              src={data.picture}
+              alt={data.name}
+              width={50}
+              height={50}
+              className="rounded-full"
+            />
 
-          <div>
-            <p className="font-bold text-lg">{data.name}</p>
+            <div>
+              <p className="font-bold text-lg">{data.name}</p>
 
-            {countdown ? (
-              <p className="text-sm text-gray-600">{countdown}</p>
-            ) : (
-              <p className="text-sm text-gray-600">
-                {new Date(meeting.meetingTime).toLocaleDateString(undefined, {
-                  day: "numeric",
-                  month: "2-digit",
-                })}{" "}
-                {new Date(meeting.meetingTime).toLocaleTimeString(undefined, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            )}
+              {countdown ? (
+                <p className="text-sm text-gray-600 w-full">{countdown}</p>
+              ) : (
+                <p className="text-sm text-gray-600 w-full">
+                  {new Date(meeting.meetingTime).toLocaleDateString(undefined, {
+                    day: "numeric",
+                    month: "2-digit",
+                  })}{" "}
+                  {new Date(meeting.meetingTime).toLocaleTimeString(undefined, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        <ChevronRight size={24} />
+        <MeetingItemMenu meeting={meeting} />
       </li>
     )
   );

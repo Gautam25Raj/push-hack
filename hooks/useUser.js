@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "sonner";
-import { useDispatch } from "react-redux";
+import { useAccount } from "wagmi";
+import { useDispatch, useSelector } from "react-redux";
 
 import { setUser } from "@/redux/slice/userSlice";
 
@@ -31,11 +32,7 @@ const useUser = () => {
       );
 
       dispatch(setUser(response.data));
-
-      toast.success("User created successfully");
     } catch (err) {
-      setError(err.message);
-
       if (err.response && err.response.status === 400) {
         toast.error(err.response.data.message);
       } else {
@@ -44,22 +41,18 @@ const useUser = () => {
     }
   };
 
-  const addMeetingToUser = async (pubKey, meetingId) => {
+  const addMeetingToUser = async (account, meetingId) => {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/addMeeting`,
         {
-          pubKey,
+          pubKey: account,
           meetingId,
         }
       );
 
       dispatch(setUser(response.data));
-
-      toast.success("Meeting added successfully");
     } catch (err) {
-      setError(err.message);
-
       if (err.response && err.response.status === 400) {
         toast.error(err.response.data.message);
       } else if (err.response && err.response.status === 404) {
@@ -83,8 +76,6 @@ const useUser = () => {
 
       toast.success("Meeting deleted successfully");
     } catch (err) {
-      setError(err.message);
-
       if (err.response && err.response.status === 400) {
         toast.error(err.response.data.message);
       } else if (err.response && err.response.status === 404) {

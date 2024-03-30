@@ -12,6 +12,9 @@ import Logo from "@/components/Logo";
 
 import Copy from "../ui/Copy";
 import VideoPlayer from "./VideoPlayer";
+
+import MyProfile from "../ui/MyProfile";
+
 import IncomingVideoModal from "../modal/IncomingVideoModal";
 
 import pubkeyMinify from "@/utils/pubkeyMinify";
@@ -33,23 +36,7 @@ const RequestVideo = ({
       <div className="flex justify-between">
         <Logo size={40} textSize={"text-xl"} />
 
-        <div className="flex gap-4 items-center">
-          <div className="">
-            <p className="font-bold">{userInfo.name}</p>
-            <div className="text-sm flex gap-2 items-center">
-              {pubkeyMinify(pushSign.account)}
-              <Copy text={pushSign.account} />
-            </div>
-          </div>
-
-          <Image
-            src={userInfo.picture}
-            width={48}
-            height={48}
-            alt=""
-            className="rounded-full"
-          />
-        </div>
+        <MyProfile />
       </div>
 
       {/* <div>
