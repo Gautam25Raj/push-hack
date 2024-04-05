@@ -29,12 +29,14 @@ const Meeting = () => {
 
   return meetings.length === 0 ? (
     <ul className="px-3 mt-8 space-y-1.5">
+      <li>No Meeting found</li>
+    </ul>
+  ) : (
+    <ul className="px-3 mt-8 space-y-1.5">
       {meetings.map((meeting) => (
         <MeetingItem key={meeting._id} meeting={meeting} />
       ))}
     </ul>
-  ) : (
-    <div>Loading...</div>
   );
 };
 

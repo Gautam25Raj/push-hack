@@ -1,9 +1,12 @@
+import IncomingVideoModal from "@/components/modal/IncomingVideoModal";
 import { createSlice } from "@reduxjs/toolkit";
+import { set } from "mongoose";
 
 const initialState = {
   meetings: [],
   activeMeeting: null,
   selectedMeeting: null,
+  IncomingVideoCall: null,
 };
 
 const meetingSlice = createSlice({
@@ -52,6 +55,14 @@ const meetingSlice = createSlice({
     clearSelectedMeeting: (state) => {
       state.selectedMeeting = null;
     },
+
+    setIncomingVideoCall: (state, action) => {
+      state.IncomingVideoCall = action.payload;
+    },
+
+    clearIncomingVideoCall: (state) => {
+      state.IncomingVideoCall = null;
+    },
   },
 });
 
@@ -65,6 +76,8 @@ export const {
   clearActiveMeeting,
   setSelectedMeeting,
   clearSelectedMeeting,
+  setIncomingVideoCall,
+  clearIncomingVideoCall,
 } = meetingSlice.actions;
 
 export default meetingSlice.reducer;

@@ -36,9 +36,11 @@ const useMeeting = () => {
     try {
       pushSign.chat.send(recipientPubKey, {
         type: "Text",
-        content: `Meeting Initiated. Time: + ${new Date(
+        content: `Meeting Initiated. Time: ${new Date(
           meetingTime
-        ).toLocaleTimeString()}`,
+        ).toLocaleTimeString()} on ${new Date(
+          meetingTime
+        ).toLocaleDateString()}`,
       });
 
       const response = await axios.post(

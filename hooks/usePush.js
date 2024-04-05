@@ -12,9 +12,11 @@ import {
   updateMessages,
 } from "@/redux/slice/PushSlice";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function usePush() {
   const dispatch = useDispatch();
+  const router = useRouter();
   const signer = useEthersSigner();
 
   const initializePush = async () => {
@@ -27,6 +29,7 @@ export default function usePush() {
         throw new Error("Error initializing push protocol");
 
       const userInfo = await user.profile.info();
+      console.log(userInfo);
 
       dispatch(setPushSign(user));
       dispatch(setPushUser(userInfo));
@@ -40,6 +43,7 @@ export default function usePush() {
 
   const handleChatEvent = (user, data) => {
     if (data.event.includes("message")) {
+      console.log(data);
       dispatch(
         updateMessages({
           fromDID: data.from,
@@ -86,6 +90,7 @@ export default function usePush() {
     if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
       console.log(data);
       setIncomingCallerAddress(data.peerInfo.address);
+      dispatch(setIncomingVideoCall(data.peerInfo.address));
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.APPROVE) {
@@ -95,7 +100,7 @@ export default function usePush() {
 
     if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
       console.log(data);
-      alert("User Denied the Call");
+      toast.info("Video Call Denied");
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
@@ -105,7 +110,9 @@ export default function usePush() {
 
     if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
       console.log(data);
-      alert("Video Call ended!");
+      toast.info("Video Call ended by the user");
+      router.push("/");
+      router.refresh();
     }
   };
 
@@ -124,6 +131,8 @@ export default function usePush() {
       CONSTANTS.STREAM.DISCONNECT,
     ]);
 
+    console.log("Stream Initialized");
+
     stream.on(CONSTANTS.STREAM.CONNECT, () => {
       setIsPushStreamConnected(true);
       console.log("Stream Connected");
@@ -132,6 +141,10 @@ export default function usePush() {
     stream.on(CONSTANTS.STREAM.DISCONNECT, () => {
       setIsPushStreamConnected(false);
       console.log("Stream Disconnected");
+    });
+
+    stream.on(CONSTANTS.STREAM.NOTIF, (data) => {
+      console.log(data);
     });
 
     stream.on(CONSTANTS.STREAM.CHAT, async (data) => {

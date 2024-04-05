@@ -2,24 +2,23 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
+import { useAccount } from "wagmi";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 import { CONSTANTS } from "@pushprotocol/restapi";
-import { useAccount, useWalletClient } from "wagmi";
 
 import usePush from "@/hooks/usePush";
 
 import RequestVideo from "@/components/video/RequestVideo";
 import VideoCallContainer from "@/components/video/VideoCall";
 
-const VideoContainer = () => {
+const VideoContainer = ({ params: { pubKey } }) => {
   const { isConnected } = useAccount();
   const { connectStream } = usePush();
 
-  const { data: signer } = useWalletClient();
-
   const videoCall = useRef();
+  const router = useRouter();
 
-  const [recipientAddress, setRecipientAddress] = useState("");
   const [data, setData] = useState(CONSTANTS.VIDEO.INITIAL_DATA);
   const [incomingCallerAddress, setIncomingCallerAddress] = useState(null);
   const [isPushStreamConnected, setIsPushStreamConnected] = useState(false);
@@ -40,15 +39,13 @@ const VideoContainer = () => {
     );
 
     const info = await user.profile.info({
-      overrideAccount: "0x3f5e02760fc81ba1db4d613ea04bba72dc6c06de",
+      overrideAccount: pubKey,
     });
 
     setRecipentInfo(info);
   };
 
   useEffect(() => {
-    if (!signer) return;
-
     if (data?.incoming[0]?.status !== CONSTANTS.VIDEO.STATUS.UNINITIALIZED)
       return;
 
@@ -59,8 +56,8 @@ const VideoContainer = () => {
     console.log("isPushStreamConnected", isPushStreamConnected);
   }, [isPushStreamConnected]);
 
-  const requestVideoCall = async (recipient) => {
-    await videoCall.current.request([recipient]);
+  const requestVideoCall = async () => {
+    await videoCall.current.request([pubKey]);
     setIsJoined(true);
   };
 
@@ -76,6 +73,7 @@ const VideoContainer = () => {
 
   const endCall = async () => {
     await videoCall.current.disconnect();
+    router.push("/");
     setIsJoined(false);
     setAcceptedCall(false);
   };
@@ -97,6 +95,8 @@ const VideoContainer = () => {
             toggleAudio={toggleAudio}
             toggleVideo={toggleVideo}
             endCall={endCall}
+            recipentInfo={recipentInfo}
+            incomingCallerAddress={incomingCallerAddress}
           />
         ) : (
           <RequestVideo

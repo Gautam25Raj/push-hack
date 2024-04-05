@@ -1,10 +1,20 @@
 import { Mic, MicOff, PhoneOff, Video, VideoOff } from "lucide-react";
 
 import Image from "next/image";
+import { useSelector } from "react-redux";
 
 import VideoPlayer from "./VideoPlayer";
 
-const VideoCallContainer = ({ data, toggleAudio, toggleVideo, endCall }) => {
+const VideoCallContainer = ({
+  data,
+  toggleAudio,
+  toggleVideo,
+  endCall,
+  recipentInfo,
+  incomingCallerAddress,
+}) => {
+  const activeMeeting = useSelector((state) => state.meeting.activeMeeting);
+
   return (
     <section className="flex h-screen w-screen bg-black">
       <div className="relative rounded-lg overflow-hidden h-fit w-full">
@@ -90,11 +100,13 @@ const VideoCallContainer = ({ data, toggleAudio, toggleVideo, endCall }) => {
         <div className="bg-gradient-to-b absolute z-10 bottom-0 rotate-180 w-full h-1/6 text-[#00000083]"></div>
 
         <div className="flex gap-4 absolute left-6 bottom-3 z-20">
-          <Image src="/images/hero.png" width={32} height={32} alt="" />
+          <Image src={recipentInfo.picture} width={32} height={32} alt="" />
 
           <div className="">
-            <p className="text-white font-bold text-sm">Anoy Roy Chowdhury</p>
-            <p className="text-white text-sm">0x3afr...456</p>
+            <p className="text-white font-bold text-sm">{recipentInfo.name}</p>
+            <p className="text-white text-sm">
+              {incomingCallerAddress || activeMeeting.recipientPubKey}
+            </p>
           </div>
         </div>
 

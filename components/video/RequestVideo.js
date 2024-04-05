@@ -78,13 +78,6 @@ const RequestVideo = ({
           )}
       </div>
 
-      {/* <div>
-            <p>LOCAL VIDEO: {data?.local.video ? "TRUE" : "FALSE"}</p>
-            <p>LOCAL AUDIO: {data?.local.audio ? "TRUE" : "FALSE"}</p>
-            <p>INCOMING VIDEO: {data?.incoming[0]?.video ? "TRUE" : "FALSE"}</p>
-            <p>INCOMING AUDIO: {data?.incoming[0]?.audio ? "TRUE" : "FALSE"}</p>
-          </div> */}
-
       <div className="w-10/12 mx-auto flex gap-12 flex-grow items-center">
         <div className="relative w-fit rounded-lg overflow-hidden h-fit">
           <div className="bg-gradient-to-b absolute z-10 w-full h-1/6 text-[#00000083]"></div>

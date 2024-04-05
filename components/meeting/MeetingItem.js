@@ -18,6 +18,7 @@ const MeetingItem = ({ meeting }) => {
     const response = await pushSign.profile.info({
       overrideAccount: meeting.recipientPubKey,
     });
+    console.log(response);
     setData(response);
   };
 
