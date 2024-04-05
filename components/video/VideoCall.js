@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 
 import VideoPlayer from "./VideoPlayer";
+import ChatBox from "../chatBox/ChatBox";
 
 const VideoCallContainer = ({
   data,
@@ -140,7 +141,9 @@ const VideoCallContainer = ({
         </div>
       </div>
 
-      <div className="w-4/12 h-full"></div>
+      <div className="w-4/12 h-full flex">
+        <ChatBox />
+      </div>
     </section>
   );
 };

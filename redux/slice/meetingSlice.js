@@ -1,6 +1,4 @@
-import IncomingVideoModal from "@/components/modal/IncomingVideoModal";
 import { createSlice } from "@reduxjs/toolkit";
-import { set } from "mongoose";
 
 const initialState = {
   meetings: [],

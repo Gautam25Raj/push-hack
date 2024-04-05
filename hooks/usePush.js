@@ -29,7 +29,6 @@ export default function usePush() {
         throw new Error("Error initializing push protocol");
 
       const userInfo = await user.profile.info();
-      console.log(userInfo);
 
       dispatch(setPushSign(user));
       dispatch(setPushUser(userInfo));

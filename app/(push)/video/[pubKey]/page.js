@@ -6,15 +6,18 @@ import { useAccount } from "wagmi";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { CONSTANTS } from "@pushprotocol/restapi";
+import { useDispatch } from "react-redux";
 
 import usePush from "@/hooks/usePush";
 
 import RequestVideo from "@/components/video/RequestVideo";
 import VideoCallContainer from "@/components/video/VideoCall";
+import { setCurrentContact } from "@/redux/slice/PushSlice";
 
 const VideoContainer = ({ params: { pubKey } }) => {
   const { isConnected } = useAccount();
   const { connectStream } = usePush();
+  const dispatch = useDispatch();
 
   const videoCall = useRef();
   const router = useRouter();
@@ -59,6 +62,7 @@ const VideoContainer = ({ params: { pubKey } }) => {
   const requestVideoCall = async () => {
     await videoCall.current.request([pubKey]);
     setIsJoined(true);
+    dispatch(setCurrentContact(`eip155:${pubKey}`));
   };
 
   const acceptIncomingCall = async () => {
