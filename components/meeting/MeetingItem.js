@@ -7,9 +7,12 @@ import MeetingItemMenu from "./MeetingItemMenu";
 import { toast } from "sonner";
 
 const MeetingItem = ({ meeting }) => {
-  // if (new Date(meeting.meetingTime) - new Date() < 0) {
-  //   return null;
-  // }
+  if (
+    meeting.status === "attended" ||
+    new Date(meeting.meetingTime) - Date.now() < 3 * 60 * 1000
+  ) {
+    return null;
+  }
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -74,12 +77,12 @@ const MeetingItem = ({ meeting }) => {
   }, []);
 
   const handleMeetingClick = async () => {
-    if (new Date(meeting.meetingTime) - new Date() > 60 * 5000) {
-      toast.message(
-        "You can join the meeting 5 minutes before the scheduled time"
-      );
-      return null;
-    }
+    // if (new Date(meeting.meetingTime) - new Date() > 60 * 5000) {
+    //   toast.message(
+    //     "You can join the meeting 5 minutes before the scheduled time"
+    //   );
+    //   return null;
+    // }
 
     dispatch(setActiveMeeting(meeting));
     router.push(`/video/${meeting.recipientPubKey}`);

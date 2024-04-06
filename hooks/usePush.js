@@ -3,6 +3,7 @@
 import { useDispatch } from "react-redux";
 import { useEthersSigner } from "@/wagmi/EthersSigner";
 import { PushAPI, CONSTANTS } from "@pushprotocol/restapi";
+import { useSelector } from "react-redux";
 
 import {
   setPushSign,
@@ -21,7 +22,7 @@ export default function usePush() {
   const dispatch = useDispatch();
   const router = useRouter();
   const signer = useEthersSigner();
-  const { createMeeting } = useMeeting();
+  const { createMeeting, updateMeeting } = useMeeting();
 
   const initializePush = async () => {
     try {
@@ -57,7 +58,7 @@ export default function usePush() {
       );
 
       if (
-        data.message.content.includes("Meeting") &&
+        data.message.content.includes("Meeting Initiated") &&
         user.account !== data.from.split(":")[1]
       ) {
         toast.info("A new Meeting has been created with you.");
@@ -68,6 +69,15 @@ export default function usePush() {
           "not attended",
           false
         );
+      }
+
+      if (
+        data.message.content.includes("Instant") &&
+        user.account !== data.from.split(":")[1]
+      ) {
+        toast.info("Join Instant Meeting now.");
+
+        router.push(`/video/${data.from.split(":")[1]}`);
       }
     } else if (data.event.includes("request")) {
       user.chat.list("REQUESTS").then((requests) => {
@@ -103,10 +113,11 @@ export default function usePush() {
     }
   };
 
-  const handleVideoEvent = (data, setIncomingCallerAddress) => {
+  const handleVideoEvent = async (data, setIncomingCallerAddress) => {
     if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
       console.log(data);
       // setIncomingCallerAddress(data.peerInfo.address);
+      router.push(`/video/${data.peerInfo.address}`);
       dispatch(setIncomingVideoCall(data.peerInfo.address));
     }
 

@@ -13,11 +13,13 @@ import usePush from "@/hooks/usePush";
 import RequestVideo from "@/components/video/RequestVideo";
 import VideoCallContainer from "@/components/video/VideoCall";
 import { setCurrentContact } from "@/redux/slice/PushSlice";
+import useMeeting from "@/hooks/useMeeting";
 
 const VideoContainer = ({ params: { pubKey } }) => {
   const { isConnected } = useAccount();
   const { connectStream, connectVideoChat } = usePush();
   const dispatch = useDispatch();
+  const { updateMeeting } = useMeeting();
 
   const videoCall = useRef();
   const router = useRouter();
@@ -31,6 +33,7 @@ const VideoContainer = ({ params: { pubKey } }) => {
   const [recipentInfo, setRecipentInfo] = useState({});
 
   const user = useSelector((state) => state.push.pushSign);
+  const activeMeeting = useSelector((state) => state.meeting.activeMeeting);
 
   const incomingCallerAddress = useSelector(
     (state) => state.meeting.IncomingVideoCall
@@ -83,10 +86,16 @@ const VideoContainer = ({ params: { pubKey } }) => {
 
   const denyIncomingCall = async () => {
     await videoCall.current.deny(incomingCallerAddress);
+    router.push("/home");
   };
 
   const endCall = async () => {
     await videoCall.current.disconnect();
+
+    if (activeMeeting) {
+      await updateMeeting(activeMeeting._id, { status: "attended" });
+    }
+
     router.push("/");
     setIsJoined(false);
     setAcceptedCall(false);

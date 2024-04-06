@@ -13,24 +13,10 @@ import { setPushStrean } from "@/redux/slice/PushSlice";
 
 const Home = () => {
   const dispatch = useDispatch();
-  const router = useRouter();
   const { connectStream } = usePush();
 
   const user = useSelector((state) => state.push.pushSign);
   const stream = useSelector((state) => state.push.pushStream);
-
-  const IncomingVideoCall = useSelector(
-    (state) => state.meeting.IncomingVideoCall
-  );
-
-  const onAccept = async () => {
-    router.push(`/video/${IncomingVideoCall}`);
-    dispatch(clearIncomingVideoCall());
-  };
-
-  const onReject = async () => {
-    dispatch(clearIncomingVideoCall());
-  };
 
   useEffect(() => {
     const initializePushAPI = async () => {
@@ -50,14 +36,6 @@ const Home = () => {
       <MeetingHome />
 
       <ScheduleContainer />
-
-      {IncomingVideoCall && (
-        <IncomingVideoModal
-          callerID={IncomingVideoCall}
-          onAccept={onAccept}
-          onReject={onReject}
-        />
-      )}
     </div>
   );
 };

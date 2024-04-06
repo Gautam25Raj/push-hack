@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, Input, Button, Typography } from "@material-tailwind/react";
+import {
+  Card,
+  Input,
+  Button,
+  Typography,
+  Switch,
+} from "@material-tailwind/react";
 
 import { toast } from "sonner";
 import { useState } from "react";
@@ -9,16 +15,20 @@ import DatePicker from "react-datepicker";
 
 import useMeeting from "@/hooks/useMeeting";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 const MeetingForm = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [hours, setHours] = useState(new Date().getHours());
   const [minutes, setMinutes] = useState(new Date().getMinutes());
   const [recipientPubKey, setRecipientPubKey] = useState("");
+  const [instantMeeting, setInstantMeeting] = useState(false);
 
   const pushSign = useSelector((state) => state.push.pushSign);
 
   const { createMeeting } = useMeeting();
+
+  const router = useRouter();
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -90,6 +100,33 @@ const MeetingForm = () => {
     }
   };
 
+  const handleInstantMeeting = async (event) => {
+    event.preventDefault();
+
+    if (pushSign.account === recipientPubKey) {
+      toast.info("Cannot create meeting with yourself");
+      return;
+    }
+
+    pushSign.chat.send(recipientPubKey, {
+      type: "Text",
+      content: `Instant Meeting Created. Time:${new Date().toLocaleTimeString()} on ${new Date().toLocaleDateString()}.`,
+    });
+
+    if (recipientPubKey === "") {
+      toast.info("Please fill Recipent Address");
+      return;
+    }
+
+    try {
+      router.push(`/video/${recipientPubKey}`);
+
+      setRecipientPubKey("");
+    } catch (error) {
+      toast.error(`Error creating meeting: ${error.message}`);
+    }
+  };
+
   return (
     <Card
       color="transparent"
@@ -117,81 +154,111 @@ const MeetingForm = () => {
             }}
           />
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Meeting Date
-          </Typography>
+          {instantMeeting ? null : (
+            <>
+              <Typography variant="h6" color="blue-gray" className="-mb-3">
+                Meeting Date
+              </Typography>
 
-          <div className="flex gap-2 items-center">
-            <Input
-              size="lg"
-              value={new Date(selectedDate).toLocaleDateString()}
-              readOnly
-              placeholder=""
-              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-            />
+              <div className="flex gap-2 items-center">
+                <Input
+                  size="lg"
+                  value={new Date(selectedDate).toLocaleDateString()}
+                  readOnly
+                  placeholder=""
+                  className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
+                  labelProps={{
+                    className: "before:content-none after:content-none",
+                  }}
+                />
 
-            <DatePicker
-              selected={selectedDate}
-              onChange={handleDateChange}
-              popperPlacement="bottom-end"
-              customInput={
-                <Button className="p-2.5 rounded-md">
-                  <Calendar size={20} />
-                </Button>
-              }
-              minDate={new Date()}
-            />
-          </div>
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={handleDateChange}
+                  popperPlacement="bottom-end"
+                  customInput={
+                    <Button className="p-2.5 rounded-md">
+                      <Calendar size={20} />
+                    </Button>
+                  }
+                  minDate={new Date()}
+                />
+              </div>
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Meeting Time
-          </Typography>
+              <Typography variant="h6" color="blue-gray" className="-mb-3">
+                Meeting Time
+              </Typography>
 
-          <div className="flex gap-2 items-center create-meeting">
-            <Input
-              type="number"
-              size="md"
-              value={hours}
-              onChange={handleHoursChange}
-              onFocus={handleHoursFocus}
-              onBlur={handleHoursBlur}
-              min={0}
-              max={23}
-              placeholder="Hours"
-              className=" !border-t-blue-gray-200 focus:!border-t-gray-900 min-w-0 flex-1"
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-            />
+              <div className="flex gap-2 items-center create-meeting">
+                <Input
+                  type="number"
+                  size="md"
+                  value={hours}
+                  onChange={handleHoursChange}
+                  onFocus={handleHoursFocus}
+                  onBlur={handleHoursBlur}
+                  min={0}
+                  max={23}
+                  placeholder="Hours"
+                  className=" !border-t-blue-gray-200 focus:!border-t-gray-900 min-w-0 flex-1"
+                  labelProps={{
+                    className: "before:content-none after:content-none",
+                  }}
+                />
 
-            <span>Hours</span>
+                <span>Hours</span>
 
-            <Input
-              type="number"
-              size="md"
-              value={minutes}
-              onChange={handleMinutesChange}
-              onFocus={handleMinutesFocus}
-              onBlur={handleMinutesBlur}
-              min={0}
-              max={59}
-              placeholder="Minutes"
-              className=" !border-t-blue-gray-200 focus:!border-t-gray-900 min-w-0 flex-1"
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-            />
+                <Input
+                  type="number"
+                  size="md"
+                  value={minutes}
+                  onChange={handleMinutesChange}
+                  onFocus={handleMinutesFocus}
+                  onBlur={handleMinutesBlur}
+                  min={0}
+                  max={59}
+                  placeholder="Minutes"
+                  className=" !border-t-blue-gray-200 focus:!border-t-gray-900 min-w-0 flex-1"
+                  labelProps={{
+                    className: "before:content-none after:content-none",
+                  }}
+                />
 
-            <span>Minutes</span>
-          </div>
+                <span>Minutes</span>
+              </div>
+            </>
+          )}
         </div>
 
-        <Button className="mt-6" fullWidth onClick={handleFormSubmit}>
-          Create Meeting
-        </Button>
+        <div className="flex gap-2 mt-3">
+          <p>Instant Meeting</p>
+
+          <Switch
+            id="custom-switch-component"
+            ripple={false}
+            value={instantMeeting}
+            className="h-full w-full checked:bg-[#2ec946]"
+            containerProps={{
+              className: "w-11 h-6",
+            }}
+            circleProps={{
+              className: "before:hidden left-0.5 border-none",
+            }}
+            onChange={() => {
+              setInstantMeeting(!instantMeeting);
+            }}
+          />
+        </div>
+
+        {instantMeeting ? (
+          <Button className="mt-6" fullWidth onClick={handleInstantMeeting}>
+            Instant Meeting
+          </Button>
+        ) : (
+          <Button className="mt-6" fullWidth onClick={handleFormSubmit}>
+            Create Meeting
+          </Button>
+        )}
       </form>
     </Card>
   );
