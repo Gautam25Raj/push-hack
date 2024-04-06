@@ -16,14 +16,14 @@ import { setCurrentContact } from "@/redux/slice/PushSlice";
 
 const VideoContainer = ({ params: { pubKey } }) => {
   const { isConnected } = useAccount();
-  const { connectStream } = usePush();
+  const { connectStream, connectVideoChat } = usePush();
   const dispatch = useDispatch();
 
   const videoCall = useRef();
   const router = useRouter();
 
   const [data, setData] = useState(CONSTANTS.VIDEO.INITIAL_DATA);
-  const [incomingCallerAddress, setIncomingCallerAddress] = useState(null);
+  // const [incomingCallerAddress, setIncomingCallerAddress] = useState(null);
   const [isPushStreamConnected, setIsPushStreamConnected] = useState(false);
 
   const [isJoined, setIsJoined] = useState(false);
@@ -32,13 +32,26 @@ const VideoContainer = ({ params: { pubKey } }) => {
 
   const user = useSelector((state) => state.push.pushSign);
 
+  const incomingCallerAddress = useSelector(
+    (state) => state.meeting.IncomingVideoCall
+  );
+  const stream = useSelector((state) => state.push.pushStream);
+  // console.log("incomingCallerAddress", incomingCallerAddress);
+
   const initializePushAPI = async () => {
-    await connectStream(
+    // await connectStream(
+    //   user,
+    //   videoCall,
+    //   setData,
+    //   setIsPushStreamConnected
+    //   setIncomingCallerAddress
+    // );
+    await connectVideoChat(
+      stream,
       user,
       videoCall,
-      setData,
-      setIsPushStreamConnected,
-      setIncomingCallerAddress
+      setData
+      // setIncomingCallerAddress
     );
 
     const info = await user.profile.info({
@@ -52,12 +65,8 @@ const VideoContainer = ({ params: { pubKey } }) => {
     if (data?.incoming[0]?.status !== CONSTANTS.VIDEO.STATUS.UNINITIALIZED)
       return;
 
-    initializePushAPI();
+    if (user) initializePushAPI();
   }, []);
-
-  useEffect(() => {
-    console.log("isPushStreamConnected", isPushStreamConnected);
-  }, [isPushStreamConnected]);
 
   const requestVideoCall = async () => {
     await videoCall.current.request([pubKey]);
@@ -67,6 +76,7 @@ const VideoContainer = ({ params: { pubKey } }) => {
 
   const acceptIncomingCall = async () => {
     await videoCall.current.approve(incomingCallerAddress);
+    dispatch(setCurrentContact(`eip155:${incomingCallerAddress}`));
     setIsJoined(true);
     setAcceptedCall(true);
   };
@@ -105,6 +115,7 @@ const VideoContainer = ({ params: { pubKey } }) => {
         ) : (
           <RequestVideo
             data={data}
+            endCall={endCall}
             incomingCallerAddress={incomingCallerAddress}
             acceptIncomingCall={acceptIncomingCall}
             denyIncomingCall={denyIncomingCall}

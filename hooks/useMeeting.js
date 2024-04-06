@@ -32,17 +32,13 @@ const useMeeting = () => {
     }
   };
 
-  const createMeeting = async (recipientPubKey, meetingTime, status) => {
+  const createMeeting = async (
+    recipientPubKey,
+    meetingTime,
+    status,
+    bool = true
+  ) => {
     try {
-      pushSign.chat.send(recipientPubKey, {
-        type: "Text",
-        content: `Meeting Initiated. Time: ${new Date(
-          meetingTime
-        ).toLocaleTimeString()} on ${new Date(
-          meetingTime
-        ).toLocaleDateString()}`,
-      });
-
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/meeting`,
         { recipientPubKey, meetingTime, status }
@@ -50,6 +46,17 @@ const useMeeting = () => {
 
       dispatch(addMeeting(response.data));
       await addMeetingToUser(pushSign.account, response.data._id);
+
+      if (bool) {
+        await pushSign.chat.send(recipientPubKey, {
+          type: "Text",
+          content: `Meeting Initiated. Time:${new Date(
+            meetingTime
+          ).toLocaleTimeString()} on ${new Date(
+            meetingTime
+          ).toLocaleDateString()}. MeetingTime: ${meetingTime}`,
+        });
+      }
 
       toast.success("Meeting created successfully");
       return response.data;

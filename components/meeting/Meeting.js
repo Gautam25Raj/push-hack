@@ -17,8 +17,12 @@ const Meeting = () => {
 
   const fetchUser = async () => {
     const data = await getUser(user.pubKey);
-
-    dispatch(setMeetings(data.meetings));
+    console.log(data.meetings);
+    const sortedMeetings = data.meetings.sort(
+      (a, b) => new Date(a.meetingTime) - new Date(b.meetingTime)
+    );
+    console.log(sortedMeetings);
+    dispatch(setMeetings(sortedMeetings));
   };
 
   useEffect(() => {
@@ -32,7 +36,7 @@ const Meeting = () => {
       <li>No Meeting found</li>
     </ul>
   ) : (
-    <ul className="px-3 mt-8 space-y-1.5">
+    <ul className="px-3 mt-8 space-y-1.5 overflow-scroll flex-grow">
       {meetings.map((meeting) => (
         <MeetingItem key={meeting._id} meeting={meeting} />
       ))}

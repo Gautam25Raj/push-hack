@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 
 import VideoPlayer from "./VideoPlayer";
 import ChatBox from "../chatBox/ChatBox";
+import { useParams } from "next/navigation";
 
 const VideoCallContainer = ({
   data,
@@ -15,6 +16,7 @@ const VideoCallContainer = ({
   incomingCallerAddress,
 }) => {
   const activeMeeting = useSelector((state) => state.meeting.activeMeeting);
+  const { pubKey } = useParams();
 
   return (
     <section className="flex h-screen w-screen bg-black">
@@ -106,7 +108,9 @@ const VideoCallContainer = ({
           <div className="">
             <p className="text-white font-bold text-sm">{recipentInfo.name}</p>
             <p className="text-white text-sm">
-              {incomingCallerAddress || activeMeeting.recipientPubKey}
+              {incomingCallerAddress ||
+                pubKey ||
+                activeMeeting?.recipientPubKey}
             </p>
           </div>
         </div>

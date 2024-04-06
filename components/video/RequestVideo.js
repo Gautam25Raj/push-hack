@@ -27,6 +27,7 @@ const RequestVideo = ({
   toggleAudio,
   toggleVideo,
   requestVideoCall,
+  endCall,
 }) => {
   const userInfo = useSelector((state) => state.push.pushUser);
   const pushSign = useSelector((state) => state.push.pushSign);
@@ -174,7 +175,10 @@ const RequestVideo = ({
               Join Now
             </Button>
 
-            <Button className="border border-red-500 px-6 py-2 rounded-full text-red-500 text-sm bg-white">
+            <Button
+              className="border border-red-500 px-6 py-2 rounded-full text-red-500 text-sm bg-white"
+              onClick={endCall}
+            >
               End Call
             </Button>
           </div>

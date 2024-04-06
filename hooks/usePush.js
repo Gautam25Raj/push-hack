@@ -13,11 +13,15 @@ import {
 } from "@/redux/slice/PushSlice";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { setIncomingVideoCall } from "@/redux/slice/meetingSlice";
+
+import useMeeting from "@/hooks/useMeeting";
 
 export default function usePush() {
   const dispatch = useDispatch();
   const router = useRouter();
   const signer = useEthersSigner();
+  const { createMeeting } = useMeeting();
 
   const initializePush = async () => {
     try {
@@ -51,6 +55,20 @@ export default function usePush() {
           messageType: data.message.type,
         })
       );
+
+      if (
+        data.message.content.includes("Meeting") &&
+        user.account !== data.from.split(":")[1]
+      ) {
+        toast.info("A new Meeting has been created with you.");
+
+        createMeeting(
+          data.from.split(":")[1],
+          data.message.content.split("MeetingTime:")[1],
+          "not attended",
+          false
+        );
+      }
     } else if (data.event.includes("request")) {
       user.chat.list("REQUESTS").then((requests) => {
         const filterRecentRequest = requests.map((request) => ({
@@ -88,7 +106,7 @@ export default function usePush() {
   const handleVideoEvent = (data, setIncomingCallerAddress) => {
     if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
       console.log(data);
-      setIncomingCallerAddress(data.peerInfo.address);
+      // setIncomingCallerAddress(data.peerInfo.address);
       dispatch(setIncomingVideoCall(data.peerInfo.address));
     }
 
@@ -133,12 +151,12 @@ export default function usePush() {
     console.log("Stream Initialized");
 
     stream.on(CONSTANTS.STREAM.CONNECT, () => {
-      setIsPushStreamConnected(true);
+      // setIsPushStreamConnected(true);
       console.log("Stream Connected");
     });
 
     stream.on(CONSTANTS.STREAM.DISCONNECT, () => {
-      setIsPushStreamConnected(false);
+      // setIsPushStreamConnected(false);
       console.log("Stream Disconnected");
     });
 
@@ -151,9 +169,33 @@ export default function usePush() {
     });
 
     stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
-      handleVideoEvent(data, setIncomingCallerAddress);
+      handleVideoEvent(data);
     });
 
+    // stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
+    //   handleVideoEvent(data, setIncomingCallerAddress);
+    // });
+
+    // videoCall.current = await user.video.initialize(setData, {
+    //   stream: stream,
+
+    //   config: {
+    //     video: true,
+    //     audio: true,
+    //   },
+    // });
+
+    await stream.connect();
+    return stream;
+  };
+
+  const connectVideoChat = async (
+    stream,
+    user,
+    videoCall,
+    setData
+    // setIncomingCallerAddress
+  ) => {
     videoCall.current = await user.video.initialize(setData, {
       stream: stream,
 
@@ -162,27 +204,6 @@ export default function usePush() {
         audio: true,
       },
     });
-
-    await stream.connect();
-  };
-
-  const connectVideoChat = async (user) => {
-    const stream = await user.initStream([CONSTANTS.STREAM.VIDEO], {});
-
-    const aliceVideoCall = await user.video.initialize(setData, {
-      stream: stream,
-
-      config: {
-        video: true,
-        audio: true,
-      },
-    });
-
-    stream.on(CONSTANTS.STREAM.VIDEO, async (data) => {
-      handleVideoEvent(aliceVideoCall, data);
-    });
-
-    return aliceVideoCall;
   };
 
   return {

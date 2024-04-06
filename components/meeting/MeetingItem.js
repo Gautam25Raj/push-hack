@@ -4,8 +4,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MeetingItemMenu from "./MeetingItemMenu";
+import { toast } from "sonner";
 
 const MeetingItem = ({ meeting }) => {
+  // if (new Date(meeting.meetingTime) - new Date() < 0) {
+  //   return null;
+  // }
+
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -18,7 +23,6 @@ const MeetingItem = ({ meeting }) => {
     const response = await pushSign.profile.info({
       overrideAccount: meeting.recipientPubKey,
     });
-    console.log(response);
     setData(response);
   };
 
@@ -31,6 +35,13 @@ const MeetingItem = ({ meeting }) => {
       const meetingTime = new Date(meeting.meetingTime);
       const now = new Date();
       const diff = meetingTime - now;
+
+      if (diff <= 0) {
+        clearInterval(interval);
+        setCountdown("Join Now");
+        return;
+      }
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
         (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
@@ -63,6 +74,13 @@ const MeetingItem = ({ meeting }) => {
   }, []);
 
   const handleMeetingClick = async () => {
+    if (new Date(meeting.meetingTime) - new Date() > 60 * 5000) {
+      toast.message(
+        "You can join the meeting 5 minutes before the scheduled time"
+      );
+      return null;
+    }
+
     dispatch(setActiveMeeting(meeting));
     router.push(`/video/${meeting.recipientPubKey}`);
   };
@@ -84,7 +102,15 @@ const MeetingItem = ({ meeting }) => {
               <p className="font-bold text-lg">{data.name}</p>
 
               {countdown ? (
-                <p className="text-sm text-gray-600 w-full">{countdown}</p>
+                countdown === "Join Now" ? (
+                  <p className="text-sm text-red-500 w-full font-bold">
+                    {countdown}
+                  </p>
+                ) : (
+                  <p className="text-sm text-green-500 w-full font-bold">
+                    {countdown}
+                  </p>
+                )
               ) : (
                 <p className="text-sm text-gray-600 w-full">
                   {new Date(meeting.meetingTime).toLocaleDateString(undefined, {
