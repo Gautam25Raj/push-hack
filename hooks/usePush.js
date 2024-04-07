@@ -14,7 +14,11 @@ import {
 } from "@/redux/slice/PushSlice";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { setIncomingVideoCall } from "@/redux/slice/meetingSlice";
+import {
+  clearIncomingVideoCall,
+  setInstantMeeting as reduxSetInstantMeeting,
+  setIncomingVideoCall,
+} from "@/redux/slice/meetingSlice";
 
 import useMeeting from "@/hooks/useMeeting";
 
@@ -76,7 +80,7 @@ export default function usePush() {
         user.account !== data.from.split(":")[1]
       ) {
         toast.info("Join Instant Meeting now.");
-
+        dispatch(reduxSetInstantMeeting(true));
         router.push(`/video/${data.from.split(":")[1]}`);
       }
     } else if (data.event.includes("request")) {
@@ -117,7 +121,7 @@ export default function usePush() {
     if (data.event === CONSTANTS.VIDEO.EVENT.REQUEST) {
       console.log(data);
       // setIncomingCallerAddress(data.peerInfo.address);
-      router.push(`/video/${data.peerInfo.address}`);
+      // router.push(`/video/${data.peerInfo.address}`);
       dispatch(setIncomingVideoCall(data.peerInfo.address));
     }
 
@@ -128,7 +132,9 @@ export default function usePush() {
 
     if (data.event === CONSTANTS.VIDEO.EVENT.DENY) {
       console.log(data);
+      router.push(`/`);
       toast.info("Video Call Denied");
+      dispatch(clearIncomingVideoCall());
     }
 
     if (data.event === CONSTANTS.VIDEO.EVENT.CONNECT) {
@@ -139,6 +145,7 @@ export default function usePush() {
     if (data.event === CONSTANTS.VIDEO.EVENT.DISCONNECT) {
       console.log(data);
       toast.info("Video Call ended by the user");
+      dispatch(clearIncomingVideoCall());
       router.push("/");
       router.refresh();
     }

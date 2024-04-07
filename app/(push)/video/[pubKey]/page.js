@@ -14,6 +14,11 @@ import RequestVideo from "@/components/video/RequestVideo";
 import VideoCallContainer from "@/components/video/VideoCall";
 import { setCurrentContact } from "@/redux/slice/PushSlice";
 import useMeeting from "@/hooks/useMeeting";
+import {
+  clearIncomingVideoCall,
+  clearInstantMeeting,
+  clearShowJoinedCall,
+} from "@/redux/slice/meetingSlice";
 
 const VideoContainer = ({ params: { pubKey } }) => {
   const { isConnected } = useAccount();
@@ -31,6 +36,7 @@ const VideoContainer = ({ params: { pubKey } }) => {
   const [isJoined, setIsJoined] = useState(false);
   const [acceptedCall, setAcceptedCall] = useState(true);
   const [recipentInfo, setRecipentInfo] = useState({});
+  const [requestedCall, setRequestedCall] = useState(false);
 
   const user = useSelector((state) => state.push.pushSign);
   const activeMeeting = useSelector((state) => state.meeting.activeMeeting);
@@ -68,13 +74,22 @@ const VideoContainer = ({ params: { pubKey } }) => {
     if (data?.incoming[0]?.status !== CONSTANTS.VIDEO.STATUS.UNINITIALIZED)
       return;
 
-    if (user) initializePushAPI();
+    if (user) {
+      console.log("Initializing Push API");
+      initializePushAPI();
+    }
   }, []);
 
   const requestVideoCall = async () => {
     await videoCall.current.request([pubKey]);
     setIsJoined(true);
+    setRequestedCall(true);
     dispatch(setCurrentContact(`eip155:${pubKey}`));
+  };
+
+  const requestFkVideoCall = async () => {
+    await videoCall.current.request([pubKey]);
+    setRequestedCall(true);
   };
 
   const acceptIncomingCall = async () => {
@@ -87,6 +102,7 @@ const VideoContainer = ({ params: { pubKey } }) => {
   const denyIncomingCall = async () => {
     await videoCall.current.deny(incomingCallerAddress);
     router.push("/home");
+    setRequestedCall(false);
   };
 
   const endCall = async () => {
@@ -97,6 +113,10 @@ const VideoContainer = ({ params: { pubKey } }) => {
     }
 
     router.push("/");
+    dispatch(clearIncomingVideoCall());
+    dispatch(clearInstantMeeting());
+    dispatch(clearShowJoinedCall());
+    setRequestedCall(false);
     setIsJoined(false);
     setAcceptedCall(false);
   };
@@ -131,6 +151,8 @@ const VideoContainer = ({ params: { pubKey } }) => {
             toggleAudio={toggleAudio}
             toggleVideo={toggleVideo}
             requestVideoCall={requestVideoCall}
+            requestedCall={requestedCall}
+            requestFkVideoCall={requestFkVideoCall}
           />
         )
       ) : (

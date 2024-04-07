@@ -4,6 +4,7 @@ const initialState = {
   activeWallet: null,
   isNewContactsModalOpen: false,
   isEditModal: false,
+  isContactsModal: false,
 };
 
 const modalsSlice = createSlice({
@@ -23,10 +24,18 @@ const modalsSlice = createSlice({
     toggleEditMeeting: (state) => {
       state.isEditModal = !state.isEditModal;
     },
+
+    toggleContactsModal: (state) => {
+      state.isContactsModal = !state.isContactsModal;
+    },
   },
 });
 
-export const { toggleNewContactsModal, setActiveWallet, toggleEditMeeting } =
-  modalsSlice.actions;
+export const {
+  toggleNewContactsModal,
+  setActiveWallet,
+  toggleEditMeeting,
+  toggleContactsModal,
+} = modalsSlice.actions;
 
 export default modalsSlice.reducer;

@@ -1,4 +1,5 @@
 import Logo from "../Logo";
+import ContactsTab from "../contacts/ContactsTab";
 import MyProfile from "../ui/MyProfile";
 import MeetingForm from "./MeetingForm";
 
@@ -11,7 +12,10 @@ const MeetingHome = () => {
         <MyProfile />
       </header>
 
-      <MeetingForm />
+      <div className="flex">
+        <ContactsTab />
+        <MeetingForm />
+      </div>
     </section>
   );
 };

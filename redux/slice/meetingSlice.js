@@ -5,6 +5,8 @@ const initialState = {
   activeMeeting: null,
   selectedMeeting: null,
   IncomingVideoCall: null,
+  isInstantMeeting: false,
+  showJoinedCall: false,
 };
 
 const meetingSlice = createSlice({
@@ -61,6 +63,22 @@ const meetingSlice = createSlice({
     clearIncomingVideoCall: (state) => {
       state.IncomingVideoCall = null;
     },
+
+    setInstantMeeting: (state, action) => {
+      state.isInstantMeeting = action.payload;
+    },
+
+    clearInstantMeeting: (state) => {
+      state.isInstantMeeting = false;
+    },
+
+    setShowJoinedCall: (state, action) => {
+      state.showJoinedCall = action.payload;
+    },
+
+    clearShowJoinedCall: (state) => {
+      state.showJoinedCall = false;
+    },
   },
 });
 
@@ -76,6 +94,10 @@ export const {
   clearSelectedMeeting,
   setIncomingVideoCall,
   clearIncomingVideoCall,
+  setInstantMeeting,
+  clearInstantMeeting,
+  setShowJoinedCall,
+  clearShowJoinedCall,
 } = meetingSlice.actions;
 
 export default meetingSlice.reducer;

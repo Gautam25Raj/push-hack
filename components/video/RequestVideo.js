@@ -7,6 +7,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import { CONSTANTS } from "@pushprotocol/restapi";
+import { useEffect, useState } from "react";
 
 import Logo from "@/components/Logo";
 
@@ -28,9 +29,46 @@ const RequestVideo = ({
   toggleVideo,
   requestVideoCall,
   endCall,
+  requestedCall,
+  requestFkVideoCall,
 }) => {
   const userInfo = useSelector((state) => state.push.pushUser);
   const pushSign = useSelector((state) => state.push.pushSign);
+
+  const instantMeeting = useSelector((state) => state.meeting.isInstantMeeting);
+  const showJoinedCall = useSelector((state) => state.meeting.showJoinedCall);
+
+  const [disableButtons, setDisableButtons] = useState(true);
+  const [disabled, setDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleReqCall = () => {
+    setLoading(true);
+
+    // Delay the execution of requestFkVideoCall by 3 seconds
+    setTimeout(async () => {
+      await requestFkVideoCall();
+
+      // Disable the Join Call button
+      setDisabled(true);
+
+      // Stop loading after requestFkVideoCall is executed
+      setLoading(false);
+
+      // Enable the Join Call button after 5 seconds
+      setTimeout(() => {
+        setDisabled(false);
+      }, 15000);
+    }, 10000);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDisableButtons(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <section className="p-4 h-screen flex flex-col">
@@ -168,19 +206,40 @@ const RequestVideo = ({
           <h2 className="text-3xl font-semibold">Ready to Join the Call?</h2>
 
           <div className="flex gap-2">
-            <Button
-              className="bg-gradient-push px-6 py-2 rounded-full text-white text-sm"
-              onClick={requestVideoCall}
-            >
-              Join Now
-            </Button>
+            {instantMeeting ? (
+              <p>Wait for the other party to join the call.</p>
+            ) : showJoinedCall ? (
+              <>
+                <p>Wait for the other party to join the call.</p>
+              </>
+            ) : (
+              <>
+                {requestedCall ? (
+                  <Button
+                    className="bg-gradient-push px-6 py-2 rounded-full text-white text-sm"
+                    onClick={requestVideoCall}
+                    disabled={disableButtons}
+                  >
+                    Join Call
+                  </Button>
+                ) : (
+                  <Button
+                    className="bg-gradient-push px-6 py-2 rounded-full text-white text-sm"
+                    onClick={handleReqCall}
+                    disabled={disabled}
+                  >
+                    {loading ? "Requesting..." : "Request Call"}
+                  </Button>
+                )}
 
-            <Button
-              className="border border-red-500 px-6 py-2 rounded-full text-red-500 text-sm bg-white"
-              onClick={endCall}
-            >
-              End Call
-            </Button>
+                <Button
+                  className="border border-red-500 px-6 py-2 rounded-full text-red-500 text-sm bg-white"
+                  onClick={endCall}
+                >
+                  End Call
+                </Button>
+              </>
+            )}
           </div>
         </div>
 

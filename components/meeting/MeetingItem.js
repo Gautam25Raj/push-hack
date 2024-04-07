@@ -77,12 +77,12 @@ const MeetingItem = ({ meeting }) => {
   }, []);
 
   const handleMeetingClick = async () => {
-    // if (new Date(meeting.meetingTime) - new Date() > 60 * 5000) {
-    //   toast.message(
-    //     "You can join the meeting 5 minutes before the scheduled time"
-    //   );
-    //   return null;
-    // }
+    if (new Date(meeting.meetingTime) - new Date() > 60 * 5000) {
+      toast.message(
+        "You can join the meeting 5 minutes before the scheduled time"
+      );
+      return null;
+    }
 
     dispatch(setActiveMeeting(meeting));
     router.push(`/video/${meeting.recipientPubKey}`);

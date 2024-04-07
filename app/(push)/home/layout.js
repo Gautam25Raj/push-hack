@@ -4,6 +4,7 @@ export default function HomeLayout({ children }) {
   return (
     <>
       <EditMeetingModal />
+
       {children}
     </>
   );
