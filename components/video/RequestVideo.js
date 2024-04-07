@@ -58,8 +58,8 @@ const RequestVideo = ({
       // Enable the Join Call button after 5 seconds
       setTimeout(() => {
         setDisabled(false);
-      }, 15000);
-    }, 10000);
+      }, 10000);
+    }, 5000);
   };
 
   useEffect(() => {

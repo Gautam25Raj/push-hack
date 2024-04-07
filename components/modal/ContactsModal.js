@@ -73,7 +73,7 @@ const ContactsModal = ({ setRecipientPubKey }) => {
                                 .split(":")[1]
                                 .substring(0, 10)}...${contact.did
                                 .split(":")[1]
-                                .substring(24, 32)}`}
+                                .slice(-6)}`}
                           </p>
                         </div>
 

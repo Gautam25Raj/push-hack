@@ -102,7 +102,13 @@ const MeetingItem = ({ meeting }) => {
             />
 
             <div>
-              <p className="font-bold text-lg">{data.name}</p>
+              <p className="font-bold text-lg">
+                {data.name ||
+                  `${meeting.recipientPubKey.slice(
+                    0,
+                    6
+                  )}...${meeting.recipientPubKey.slice(-4)}`}
+              </p>
 
               {countdown ? (
                 countdown === "Join Now" ? (
